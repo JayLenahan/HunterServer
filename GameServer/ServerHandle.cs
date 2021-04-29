@@ -13,33 +13,37 @@ namespace GameServer
     public static void WelcomeReceived(int _fromClient, Packet _packet)
     {
       int _clientIdCheck = _packet.ReadInt();
+      bool _newUser = _packet.ReadBool();
       string _username = _packet.ReadString();
       string _passwordAttempt = _packet.ReadString();
       try
       {
-        using (var context = ContextLayer.GetContext())
+        if (!_newUser)
         {
-          if (!ContextLayer.UserCredentialsCorrect(_username, _passwordAttempt, context))
+          using (var context = ContextLayer.GetContext())
           {
-            Console.WriteLine("Invalid User");
-            ServerSend.InvalidLogin(_clientIdCheck);
-          }
-          else
-          {
-            var user = ContextLayer.GetUser(_username, context);
-            Console.WriteLine($"Client: {Server.clients[_fromClient].tcp.socket.Client.RemoteEndPoint} connected successfully and {_username} is now player {_fromClient}.");
-            if (_fromClient != _clientIdCheck)
+            if (!ContextLayer.UserCredentialsCorrect(_username, _passwordAttempt, context))
             {
-              Console.WriteLine($"Player \"{_username}\" (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
+              Console.WriteLine("Invalid User");
+              ServerSend.Alert(_clientIdCheck, "Username / password are invalid or User does not exist.");
             }
-            // TODO: send player into game
-            var characters = PlayerCharacter.ToCharacterList(ContextLayer.GetUserCharacters(user.Id, context));
-            ServerSend.LoginSuccess(_clientIdCheck, new UserSigninData
+            else
             {
-              UserName = user.Name,
-              Characters = characters
-            });
-            //Server.clients[_fromClient].SendIntoGame(_username);
+              var user = ContextLayer.GetUser(_username, context);
+              Console.WriteLine($"Client: {Server.clients[_fromClient].tcp.socket.Client.RemoteEndPoint} connected successfully and {_username} is now player {_fromClient}.");
+              if (_fromClient != _clientIdCheck)
+              {
+                Console.WriteLine($"Player \"{_username}\" (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
+              }
+              // TODO: send player into game
+              var characters = PlayerCharacter.ToCharacterList(ContextLayer.GetUserCharacters(user.Id, context));
+              ServerSend.LoginSuccess(_clientIdCheck, new UserSigninData
+              {
+                UserName = user.Name,
+                Characters = characters
+              });
+              //Server.clients[_fromClient].SendIntoGame(_username);
+            }
           }
         }
       }
@@ -102,11 +106,11 @@ namespace GameServer
             //ServerSend.SendNewUserEmail();
             //
             ContextLayer.AddNewUser(_username, _email, _password, context);
-            ServerSend.InvalidLogin(_clientIdCheck);
+            ServerSend.Alert(_clientIdCheck, "User created check your email to verify your account before logging in.");
           }
           else
           {
-            ServerSend.InvalidLogin(_clientIdCheck);
+            ServerSend.Alert(_clientIdCheck, "An Error occured or user already exists.");
           }
 
         }

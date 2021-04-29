@@ -121,8 +121,7 @@ namespace GameServer
         { (int)ClientPackets.newUser, ServerHandle.NewUser },
         { (int)ClientPackets.newCharacter, ServerHandle.NewCharacter },
         { (int)ClientPackets.sendIntoGame, ServerHandle.SendPlayerIntoGame },
-        { (int)ClientPackets.playerMovement, ServerHandle.PlayerMovement },
-        { (int)ClientPackets.udpTest, ServerHandle.UDPTest }
+        { (int)ClientPackets.playerMovement, ServerHandle.PlayerMovement }
       };
       Console.WriteLine("Initialized packets");
     }

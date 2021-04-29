@@ -12,7 +12,7 @@ namespace GameServer
   public enum ServerPackets
   {
     welcome,
-    invalidLogin,
+    alert,
     loginSuccess,
     newUser,
     newCharacter,
@@ -22,8 +22,6 @@ namespace GameServer
     playerRotation,
 
     clientDisconncet,
-
-    udpTest,
   }
 
   /// <summary>Sent from client to server.</summary>
@@ -35,8 +33,6 @@ namespace GameServer
 
     sendIntoGame,
     playerMovement,
-
-    udpTest,
   }
 
   public class Packet : IDisposable

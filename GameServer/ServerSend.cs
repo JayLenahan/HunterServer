@@ -64,8 +64,8 @@ namespace GameServer
     {
       using (Packet _packet = new Packet((int)ServerPackets.welcome))
       {
-        _packet.Write(_msg);
         _packet.Write(_toClient);
+        _packet.Write(_msg);        
 
         SendTCPData(_toClient, _packet);
       }
@@ -76,19 +76,15 @@ namespace GameServer
       //TODO: setup new user email send receive
             
     }
-
-    public static void InvalidLogin(int _toClient)
+    public static void Alert(int _toClient, string _msg)
     {
-      using (Packet _packet = new Packet((int)ServerPackets.invalidLogin))
+      using (Packet _packet = new Packet((int)ServerPackets.alert))
       {
         var _client = Server.clients[_toClient].tcp.socket.Client;
-        _packet.Write("Username / password are invalid or User does not exist.");
         _packet.Write(_toClient);
+        _packet.Write(_msg);    
 
         SendTCPData(_toClient, _packet);
-        //_client.Shutdown(SocketShutdown.Both);
-        //_client.Disconnect(true);
-        //Server.clients[_toClient] = new Client(_toClient);
       }
     }
     public static void LoginSuccess(int _toClient, UserSigninData d)
@@ -162,16 +158,6 @@ namespace GameServer
       {
         _packet.Write(_id);
         SendTCPDataToAll(_packet);
-      }
-    }
-
-    public static void UDPTest(int _toClient)
-    {
-      using (Packet _packet = new Packet((int)ServerPackets.udpTest))
-      {
-        _packet.Write("A test packet for UDP.");
-
-        SendUDPData(_toClient, _packet);
       }
     }
     #endregion
